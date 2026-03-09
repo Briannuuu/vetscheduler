@@ -1,3 +1,5 @@
+import { auth, db } from './firebase-config.js';
+
 let allAppts = [];
 let currentFilter = 'all';
 let currentPage = 1;
