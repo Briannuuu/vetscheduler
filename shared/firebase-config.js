@@ -1,10 +1,10 @@
 const firebaseConfig = {
-  apiKey: "AIzaSyDYSo475xHUxTuiHatK7_5sjRYjEBDEl3g",
-  authDomain: "vetscheduler-sbsi.firebaseapp.com",
-  projectId: "vetscheduler-sbsi",
-  storageBucket: "vetscheduler-sbsi.firebasestorage.app",
-  messagingSenderId: "366267339544",
-  appId: "1:366267339544:web:2d662885a9b920d50e046d"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
 
 // Initialize Firebase
