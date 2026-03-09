@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Dashboard – VetCare</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="css/admin - css.css">
+</head>
+<body>
+
+<!-- LOGIN OVERLAY -->
+<div class="login-overlay" id="loginOverlay">
+  <div class="login-box">
+    <div class="logo">
+      <div class="logo-icon">🐾</div>
+      <div><h2>VetCare</h2><p>Veterinary Clinic</p></div>
+    </div>
+    <div class="tag">🔒 Staff Portal</div>
+    <h3>Admin Login</h3>
+    <p class="sub">Sign in to manage appointments</p>
+    <div class="login-err" id="loginErr"></div>
+    <label>Email</label>
+    <input type="email" id="loginEmail" placeholder="admin@pawcare.com"/>
+    <label>Password</label>
+    <input type="password" id="loginPass" placeholder="••••••••"/>
+    <button class="login-btn" onclick="doLogin()">Sign In →</button>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<nav>
+  <div class="nav-left">
+    <div class="nav-logo"><span>🐾</span> VetCare Admin</div>
+    <span class="staff-badge">Staff</span>
+  </div>
+  <div class="nav-right">
+    <button class="btn-logout" onclick="doLogout()">Sign Out</button>
+  </div>
+</nav>
+
+<main>
+  <!-- STATS -->
+  <div class="stats-grid" id="statsGrid">
+    <div class="stat-card"><div class="stat-label">Total Requests</div><div class="stat-value" id="statTotal">—</div></div>
+    <div class="stat-card pending"><div class="stat-label">Pending</div><div class="stat-value" id="statPending">—</div></div>
+    <div class="stat-card accepted"><div class="stat-label">Accepted</div><div class="stat-value" id="statAccepted">—</div></div>
+    <div class="stat-card rejected"><div class="stat-label">Rejected</div><div class="stat-value" id="statRejected">—</div></div>
+  </div>
+
+  <!-- HEADER + FILTERS -->
+  <div class="section-header">
+    <h2>Appointment Requests</h2>
+    <div class="tabs">
+      <button class="tab active"          onclick="filterTab('all', this)">All</button>
+      <button class="tab tab-pending"     onclick="filterTab('pending', this)">⏳ Pending</button>
+      <button class="tab tab-accepted"    onclick="filterTab('accepted', this)">✅ Accepted</button>
+      <button class="tab tab-rejected"    onclick="filterTab('rejected', this)">❌ Rejected</button>
+    </div>
+  </div>
+
+  <div class="cards-list" id="cardsList">
+    <div class="spinner"></div>
+  </div>
+
+  <!-- CALENDAR VIEW -->
+  <div class="calendar-section">
+    <div class="calendar-header">
+      <h2>Accepted Appointments Calendar</h2>
+      <div class="cal-nav">
+        <button class="cal-nav-btn" onclick="changeMonth(-1)">&#8249;</button>
+        <span class="cal-month-label" id="calMonthLabel"></span>
+        <button class="cal-nav-btn" onclick="changeMonth(1)">&#8250;</button>
+      </div>
+    </div>
+    <div class="calendar-grid-wrap">
+      <div class="cal-day-headers">
+        <div>Sun</div><div>Mo</div><div>Tu</div><div>We</div><div>Th</div><div>Fr</div><div>Sa</div>
+      </div>
+      <div class="cal-grid" id="calGrid"></div>
+    </div>
+  </div>
+
+  <!-- DAY DETAIL MODAL -->
+  <div class="cal-modal-overlay" id="calModalOverlay" onclick="closeModal()">
+    <div class="cal-modal" onclick="event.stopPropagation()">
+      <div class="cal-modal-header">
+        <h3 id="calModalTitle"></h3>
+        <button class="cal-modal-close" onclick="closeModal()">✕</button>
+      </div>
+      <div class="cal-modal-body" id="calModalBody"></div>
+    </div>
+  </div>
+</main>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="../shared/firebase-config.js"></script>
+<script src="js/admin.js"></script>
+</body>
+</html>

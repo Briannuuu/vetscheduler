@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Book an Appointment – VetCare</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="landing/css/index - css.css">
+  <link rel="icon" type="image/x-icon" href="landing/img/logo.jpg">
+</head>
+<body>
+<div class="page-wrapper">
+  <div class="left-panel">
+    <div class="brand">
+      <div class="brand-icon">🐾</div>
+      <div class="brand-name">VetCare<small>Veterinary Clinic</small></div>
+    </div>
+    <div class="hero-text">
+      <div class="eyebrow">Schedule a Visit</div>
+      <h1>Your pet deserves <em>the best</em> care.</h1>
+      <p>Book an appointment with our veterinary team in just a few seconds. No account needed — just fill out the form.</p>
+    </div>
+    <div class="features">
+      <div class="feature-item"><div class="feature-dot">⚡</div><span>Instant appointment requests</span></div>
+      <div class="feature-item"><div class="feature-dot">✅</div><span>Confirmed by our staff within 24 hours</span></div>
+      <div class="feature-item"><div class="feature-dot">🏥</div><span>Professional veterinary care</span></div>
+    </div>
+    <div class="admin-link-wrap"><a href="backend/admin.html">🔒 Staff login →</a></div>
+  </div>
+
+  <div class="right-panel">
+    <div id="formView">
+      <div class="form-header">
+        <h2>Book an Appointment</h2>
+        <p>Fill in your details and we'll confirm your schedule shortly.</p>
+      </div>
+      <div class="form-grid">
+        <div class="error-bar" id="errorBar"></div>
+        <div class="form-group">
+          <label>Owner Name <span class="req">*</span></label>
+          <input type="text" id="ownerName" placeholder="Juan dela Cruz"/>
+        </div>
+        <div class="form-group">
+          <label>Contact Number <span class="req">*</span></label>
+          <input type="tel" id="contactNo" placeholder="09XX XXX XXXX"/>
+        </div>
+        <div class="form-group full">
+          <label>Email Address <span class="req">*</span></label>
+          <input type="email" id="email" placeholder="juan@email.com"/>
+        </div>
+        <div class="form-group full">
+          <label>Address <span class="req">*</span></label>
+          <input type="text" id="address" placeholder="House No., Street, Barangay, City"/>
+        </div>
+        <div class="form-group">
+          <label>Pet Name <span class="req">*</span></label>
+          <input type="text" id="petName" placeholder="Buddy"/>
+        </div>
+        <div class="form-group">
+          <label>Pet Breed / Species</label>
+          <input type="text" id="petBreed" placeholder="Shih Tzu, Puspin…"/>
+        </div>
+        <div class="form-group">
+          <label>Preferred Date <span class="req">*</span></label>
+          <input type="date" id="apptDate"/>
+        </div>
+        <div class="form-group">
+          <label>Preferred Time <span class="req">*</span></label>
+          <input type="time" id="apptTime"/>
+        </div>
+        <div class="form-group full">
+          <label>Reason for Visit / Notes</label>
+          <textarea id="notes" placeholder="e.g. Annual checkup, vaccination, limping on left leg…"></textarea>
+        </div>
+        <button class="btn-submit" id="submitBtn" onclick="submitRequest()">
+          <span id="btnText">Request Appointment →</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="success-overlay" id="successView">
+      <div class="success-icon">✅</div>
+      <h3>Request Submitted!</h3>
+      <p>Your appointment request has been sent to our team. We'll confirm your schedule shortly.</p>
+      <div class="success-details" id="successDetails"></div>
+      <button class="btn-new" onclick="resetForm()">Book Another Appointment</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="shared/firebase-config.js"></script>
+<script src="landing/js/index.js"></script>
+</body>
+</html>
