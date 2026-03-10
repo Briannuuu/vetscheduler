@@ -8,43 +8,64 @@ const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov
 document.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
 
 auth.onAuthStateChanged(async user => {
-if (!user) return showLoginOverlay();
-try {
+  if (!user) return showLoginOverlay();
+  try {
     const doc = await db.collection('users').doc(user.uid).get();
-    if (!doc.exists) { await auth.signOut(); return showLoginOverlay(); }
+    if (!doc.exists) {
+      await auth.signOut();
+      return showLoginOverlay('⚠️ Account not found. Contact your administrator.');
+    }
     const role = doc.data().role;
-    // Doctor role → redirect to their own dashboard
+    // Only admin and superadmin are allowed here — everyone else is denied
     if (role === 'doctor') {
-      window.location.href = 'doctor.html';
-      return;
+      await auth.signOut();
+      return showLoginOverlay('🩺 Doctor accounts must use the Doctor Portal.');
     }
     if (role !== 'admin' && role !== 'superadmin') {
-      await auth.signOut(); return showLoginOverlay();
+      await auth.signOut();
+      return showLoginOverlay('🚫 Access denied. Admin accounts only.');
     }
-} catch(e) {
-    // If no users collection yet, allow first admin in (remove this in production)
-}
-document.getElementById('loginOverlay').style.display = 'none';
-startListening();
+    // Authorised — hide login and load dashboard
+    document.getElementById('loginOverlay').style.display = 'none';
+    document.getElementById('loggedEmail').textContent = user.email;
+    startListening();
+  } catch(e) {
+    await auth.signOut();
+    showLoginOverlay('⚠️ Error verifying account. Please try again.');
+  }
 });
 
-function showLoginOverlay() {
-document.getElementById('loginOverlay').style.display = 'flex';
+function showLoginOverlay(errMsg) {
+  document.getElementById('loginOverlay').style.display = 'flex';
+  if (errMsg) {
+    const el = document.getElementById('loginErr');
+    el.textContent = errMsg;
+    el.style.display = 'block';
+  }
 }
 
 async function doLogin() {
-const email = document.getElementById('loginEmail').value.trim();
-const pass  = document.getElementById('loginPass').value;
-const errEl = document.getElementById('loginErr');
-errEl.style.display = 'none';
-if (!email || !pass) { errEl.textContent = 'Please enter email and password.'; return errEl.style.display = 'block'; }
-try {
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass  = document.getElementById('loginPass').value;
+  const errEl = document.getElementById('loginErr');
+  errEl.style.display = 'none';
+  if (!email || !pass) {
+    errEl.textContent = 'Please enter email and password.';
+    return errEl.style.display = 'block';
+  }
+  try {
     await auth.signInWithEmailAndPassword(email, pass);
-} catch(err) {
-    const msgs = { 'auth/user-not-found':'No account found.', 'auth/wrong-password':'Incorrect password.', 'auth/invalid-email':'Invalid email.' };
+  } catch(err) {
+    const msgs = {
+      'auth/user-not-found': 'No account found.',
+      'auth/wrong-password': 'Incorrect password.',
+      'auth/invalid-email':  'Invalid email format.',
+      'auth/invalid-credential': 'Incorrect email or password.',
+      'auth/too-many-requests': 'Too many attempts. Please wait and try again.'
+    };
     errEl.textContent = msgs[err.code] || err.message;
     errEl.style.display = 'block';
-}
+  }
 }
 
 function doLogout() { auth.signOut(); }
