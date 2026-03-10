@@ -18,16 +18,16 @@
       <div class="logo-icon"><img src="img/logo.jpg" alt="VetCare Logo"/></div>
       <div><h2>VetCare</h2><p>Veterinary Clinic</p></div>
     </div>
-    <div class="tag">🔒 Super Admin Portal</div>
+    <div class="tag">&#128274; Super Admin Portal</div>
     <h3>Super Admin Login</h3>
     <p class="sub">Only authorized superadmins may enter</p>
     <div class="login-err" id="loginErr"></div>
     <label>Email</label>
     <input type="email" id="loginEmail" placeholder="superadmin@vetcare.com"/>
     <label>Password</label>
-    <input type="password" id="loginPass" placeholder="••••••••"/>
-    <button class="login-btn" onclick="doLogin()">Sign In →</button>
-    <div class="back-link"><a href="admin.html">← Back to Admin</a></div>
+    <input type="password" id="loginPass" placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;"/>
+    <button class="login-btn" onclick="doLogin()">Sign In &#8594;</button>
+    <div class="back-link"><a href="admin.html">&#8592; Back to Admin</a></div>
   </div>
 </div>
 
@@ -38,91 +38,204 @@
     <span class="staff-badge superadmin-badge">Super Admin</span>
   </div>
   <div class="nav-right">
-    <!-- <a href="admin.html" class="btn-admin-link">← Admin Dashboard</a> -->
     <span class="logged-in-email" id="loggedEmail"></span>
     <button class="btn-logout" onclick="doLogout()">Sign Out</button>
   </div>
 </nav>
 
 <main>
-  <div class="page-grid">
 
-    <!-- LEFT: CREATE USER FORM -->
-    <div class="form-panel">
-      <div class="panel-header">
-        <div class="panel-icon"><i class="fa-solid fa-user-plus"></i></div>
-        <div>
-          <h2>Create Admin User</h2>
-          <p>Add a new staff account to Firebase Authentication</p>
+  <!-- TAB NAVIGATION -->
+  <div class="sa-tabs">
+    <button class="sa-tab active" id="tabBtnUsers" onclick="switchTab('users', this)">
+      <i class="fa-solid fa-users"></i> User Management
+    </button>
+    <button class="sa-tab" id="tabBtnAudit" onclick="switchTab('audit', this)">
+      <i class="fa-solid fa-clock-rotate-left"></i> Audit Trail
+      <span class="audit-live-dot" id="auditLiveDot" style="display:none"></span>
+    </button>
+  </div>
+
+  <!-- ══════════════ USERS TAB ══════════════ -->
+  <div id="tabUsers" class="tab-panel">
+    <div class="page-grid">
+
+      <!-- LEFT: CREATE USER FORM -->
+      <div class="form-panel">
+        <div class="panel-header">
+          <div class="panel-icon"><i class="fa-solid fa-user-plus"></i></div>
+          <div>
+            <h2>Create Admin User</h2>
+            <p>Add a new staff account to Firebase Authentication</p>
+          </div>
+        </div>
+
+        <div class="toast" id="toast"></div>
+
+        <div class="form-group">
+          <label>Full Name <span class="req">*</span></label>
+          <input type="text" id="newName" placeholder="e.g. Dr. Maria Santos"/>
+        </div>
+        <div class="form-group">
+          <label>Email Address <span class="req">*</span></label>
+          <input type="email" id="newEmail" placeholder="staff@vetcare.com"/>
+        </div>
+        <div class="form-group">
+          <label>Password <span class="req">*</span></label>
+          <div class="pw-wrap">
+            <input type="password" id="newPassword" placeholder="Min. 6 characters"/>
+            <button class="pw-toggle" onclick="togglePw()" id="pwToggleBtn" title="Show/hide password">&#128065;</button>
+          </div>
+          <div class="pw-strength" id="pwStrength"></div>
+        </div>
+        <div class="form-group">
+          <label>Role <span class="req">*</span></label>
+          <select id="newRole">
+            <option value="">Select role&#8230;</option>
+            <option value="admin">Admin (Staff)</option>
+            <option value="doctor">Doctor</option>
+            <option value="superadmin">Super Admin</option>
+          </select>
+        </div>
+
+        <button class="btn-create" id="createBtn" onclick="createUser()">
+          <span id="createBtnText">Create Account &#8594;</span>
+        </button>
+      </div>
+
+      <!-- RIGHT: USERS TABLE -->
+      <div class="users-panel">
+        <div class="users-header">
+          <div>
+            <h2>Admin Users</h2>
+            <p id="userCountText">Loading users&#8230;</p>
+          </div>
+          <div class="search-wrap">
+            <input type="text" id="searchInput" placeholder="Search by name or email&#8230;" oninput="filterUsers()"/>
+          </div>
+        </div>
+
+        <div class="users-table-wrap">
+          <table class="users-table" id="usersTable">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Created</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="usersTableBody">
+              <tr><td colspan="5" class="table-loading">
+                <div class="spinner"></div>
+              </td></tr>
+            </tbody>
+          </table>
         </div>
       </div>
 
-      <div class="toast" id="toast"></div>
-
-      <div class="form-group">
-        <label>Full Name <span class="req">*</span></label>
-        <input type="text" id="newName" placeholder="e.g. Dr. Maria Santos"/>
-      </div>
-      <div class="form-group">
-        <label>Email Address <span class="req">*</span></label>
-        <input type="email" id="newEmail" placeholder="staff@vetcare.com"/>
-      </div>
-      <div class="form-group">
-        <label>Password <span class="req">*</span></label>
-        <div class="pw-wrap">
-          <input type="password" id="newPassword" placeholder="Min. 6 characters"/>
-          <button class="pw-toggle" onclick="togglePw()" id="pwToggleBtn" title="Show/hide password">👁</button>
-        </div>
-        <div class="pw-strength" id="pwStrength"></div>
-      </div>
-      <div class="form-group">
-        <label>Role <span class="req">*</span></label>
-        <select id="newRole">
-          <option value="">Select role…</option>
-          <option value="admin">Admin (Staff)</option>
-          <option value="doctor">Doctor</option>
-          <option value="superadmin">Super Admin</option>
-        </select>
-      </div>
-
-      <button class="btn-create" id="createBtn" onclick="createUser()">
-        <span id="createBtnText">Create Account →</span>
-      </button>
     </div>
+  </div><!-- /tabUsers -->
 
-    <!-- RIGHT: USERS TABLE -->
-    <div class="users-panel">
-      <div class="users-header">
-        <div>
-          <h2>Admin Users</h2>
-          <p id="userCountText">Loading users…</p>
+  <!-- ══════════════ AUDIT TRAIL TAB ══════════════ -->
+  <div id="tabAudit" class="tab-panel" style="display:none">
+    <div class="audit-panel">
+
+      <!-- Header -->
+      <div class="audit-header">
+        <div class="audit-header-left">
+          <div class="audit-icon-box"><i class="fa-solid fa-shield-halved"></i></div>
+          <div>
+            <h2>Audit Trail</h2>
+            <p id="auditCountText">Loading activity logs&#8230;</p>
+          </div>
         </div>
-        <div class="search-wrap">
-          <input type="text" id="searchInput" placeholder="🔍 Search by name or email…" oninput="filterUsers()"/>
+        <div class="audit-header-right">
+          <div class="audit-filters">
+            <select id="auditPortalFilter" onchange="applyAuditFilters()">
+              <option value="">All Roles</option>
+              <option value="admin">Admin</option>
+              <option value="doctor">Doctor</option>
+              <option value="superadmin">Super Admin</option>
+            </select>
+            <select id="auditActionFilter" onchange="applyAuditFilters()">
+              <option value="">All Actions</option>
+              <option value="LOGIN">Login</option>
+              <option value="LOGOUT">Logout</option>
+              <option value="APPOINTMENT_ACCEPTED">Accepted Appt</option>
+              <option value="APPOINTMENT_REJECTED">Rejected Appt</option>
+              <option value="APPOINTMENT_DELETED">Deleted Appt</option>
+              <option value="AVAILABILITY_SAVED">Availability Saved</option>
+              <option value="USER_CREATED">User Created</option>
+              <option value="USER_DELETED">User Deleted</option>
+              <option value="ROLE_UPDATED">Role Updated</option>
+            </select>
+            <input type="text" id="auditSearchInput" placeholder="Search actor or action&#8230;" oninput="applyAuditFilters()"/>
+          </div>
+          <!-- <button class="audit-export-btn" onclick="exportAuditCSV()">
+            <i class="fa-solid fa-download"></i> Export CSV
+          </button> -->
         </div>
       </div>
 
-      <div class="users-table-wrap">
-        <table class="users-table" id="usersTable">
+      <!-- Quick stats -->
+      <div class="audit-stats-row">
+        <div class="audit-stat-card">
+          <div class="audit-stat-label">Total Events</div>
+          <div class="audit-stat-val" id="aStatTotal">&#8212;</div>
+        </div>
+        <div class="audit-stat-card">
+          <div class="audit-stat-label">Logins Today</div>
+          <div class="audit-stat-val" id="aStatLogins">&#8212;</div>
+        </div>
+        <div class="audit-stat-card">
+          <div class="audit-stat-label">Appts Accepted</div>
+          <div class="audit-stat-val" id="aStatAccepted">&#8212;</div>
+        </div>
+        <div class="audit-stat-card">
+          <div class="audit-stat-label">Appts Rejected</div>
+          <div class="audit-stat-val" id="aStatRejected">&#8212;</div>
+        </div>
+        <div class="audit-stat-card">
+          <div class="audit-stat-label">Avail. Saves</div>
+          <div class="audit-stat-val" id="aStatAvail">&#8212;</div>
+        </div>
+      </div>
+
+      <!-- Log table -->
+      <div class="audit-table-wrap">
+        <table class="audit-table">
           <thead>
             <tr>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Role</th>
-              <th>Created</th>
-              <th>Actions</th>
+              <th>Timestamp</th>
+              <th>Actor</th>
+              <th>Portal</th>
+              <th>Action</th>
+              <th>Details</th>
             </tr>
           </thead>
-          <tbody id="usersTableBody">
-            <tr><td colspan="5" class="table-loading">
-              <div class="spinner"></div>
-            </td></tr>
+          <tbody id="auditTableBody">
+            <tr><td colspan="5" class="table-loading"><div class="spinner"></div></td></tr>
           </tbody>
         </table>
       </div>
-    </div>
 
-  </div>
+      <div class="audit-pagination" id="auditPagination"></div>
+
+      <!-- Error Log Controls -->
+      <div class="audit-error-log-row">
+        <button class="btn-error-log" onclick="ErrorLogger.download()" title="Download Error Logs">
+          <i class="fa-solid fa-triangle-exclamation"></i> Error Logs
+          <span class="error-log-badge" id="errorLogBadge" style="display:none">0</span>
+        </button>
+        <button class="btn-clear-log" id="btnClearLog" onclick="confirmClearLogs()" title="Clear error logs" style="display:none">
+          <i class="fa-solid fa-trash-can"></i> Clear
+        </button>
+      </div>
+    </div>
+  </div><!-- /tabAudit -->
+
 </main>
 
 <!-- EDIT ROLE MODAL -->
@@ -130,7 +243,7 @@
   <div class="modal-box" onclick="event.stopPropagation()">
     <div class="modal-header">
       <h3>Edit User Role</h3>
-      <button class="modal-close" onclick="closeEditModal()">✕</button>
+      <button class="modal-close" onclick="closeEditModal()">&#10005;</button>
     </div>
     <div class="modal-body">
       <p id="editUserInfo" style="font-size:14px;color:#6b8080;margin-bottom:20px;"></p>
@@ -148,11 +261,19 @@
   </div>
 </div>
 
+<!-- !! TEST BUG — remove after verifying error logs !! -->
+<!-- <script>
+  window.addEventListener('load', () => {
+    const user = undefined;
+    console.log(user.email); // TypeError: Cannot read properties of undefined
+  });
+</script> -->
 <!-- Firebase SDKs -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="../shared/firebase-config.js"></script>
+<script src="js/error-logger.js"></script>
 <script src="js/superadmin.js"></script>
 </body>
 </html>

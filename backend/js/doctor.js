@@ -26,6 +26,7 @@ auth.onAuthStateChanged(async user => {
     document.getElementById('loginOverlay').style.display = 'none';
     document.getElementById('loggedName').textContent  = doc.data().name  || '';
     document.getElementById('loggedEmail').textContent = user.email || '';
+    logAudit('LOGIN', { _portal: 'doctor', role: 'doctor', doctorName: doc.data().name || '' });
     startListening();
     initAvailability();
   } catch(e) {
@@ -64,7 +65,9 @@ async function doLogin() {
   }
 }
 
-function doLogout() { auth.signOut(); }
+function doLogout() {
+  logAudit('LOGOUT', { _portal: 'doctor' }).finally(() => auth.signOut());
+}
 
 // ── DATA ──
 function startListening() {
@@ -457,6 +460,15 @@ async function saveAvailability() {
 
     // FIX: Only clear dirty flag AFTER a confirmed successful write
     availDirty = false;
+    const prefix2 = availMonthKey();
+    const dayCount = Object.keys(availData).filter(k => k.startsWith(prefix2) && availData[k].size > 0).length;
+    const slotCount = Object.entries(availData).filter(([k]) => k.startsWith(prefix2)).reduce((s, [, v]) => s + v.size, 0);
+    logAudit('AVAILABILITY_SAVED', {
+      _portal: 'doctor',
+      month: availMonthKey(),
+      daysSet: dayCount,
+      totalSlots: slotCount
+    });
     showAvailToast('✅ Availability saved!');
   } catch(e) {
     // Log the real error so you can see it in the console

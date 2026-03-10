@@ -615,6 +615,7 @@ main { max-width: 1200px; margin: 0 auto; padding: 40px 28px 60px; }
   margin-top: 4px; font-weight: 500;
 }
 .doctor-opt-details { flex: 1; }
+
 /* ── Reject confirm button ── */
 .btn-reject-confirm {
   padding: 10px 22px; background: #e74c3c; color: #fff; border: none;

@@ -28,6 +28,7 @@ auth.onAuthStateChanged(async user => {
     // Authorised — hide login and load dashboard
     document.getElementById('loginOverlay').style.display = 'none';
     document.getElementById('loggedEmail').textContent = user.email;
+    logAudit('LOGIN', { _portal: 'admin', role });
     startListening();
   } catch(e) {
     await auth.signOut();
@@ -68,7 +69,9 @@ async function doLogin() {
   }
 }
 
-function doLogout() { auth.signOut(); }
+function doLogout() {
+  logAudit('LOGOUT', { _portal: 'admin' }).finally(() => auth.signOut());
+}
 
 async function goToSuperAdmin() {
   await auth.signOut();
@@ -227,9 +230,17 @@ await db.collection('appointments').doc(id).update({ status });
 }
 
 async function deleteAppt(id) {
-if (confirm('Delete this appointment request permanently?')) {
+  if (confirm('Delete this appointment request permanently?')) {
+    const appt = allAppts.find(a => a.id === id);
     await db.collection('appointments').doc(id).delete();
-}
+    logAudit('APPOINTMENT_DELETED', {
+      _portal: 'admin',
+      appointmentId: id,
+      ownerName: appt?.ownerName || '—',
+      petName: appt?.petName || '—',
+      previousStatus: appt?.status || '—'
+    });
+  }
 }
 // ── CALENDAR ──
 let calYear, calMonth;
@@ -545,6 +556,14 @@ async function confirmReject() {
       status: 'rejected',
       rejectReason: reason
     });
+    const appt = allAppts.find(a => a.id === rejectingApptId);
+    logAudit('APPOINTMENT_REJECTED', {
+      _portal: 'admin',
+      appointmentId: rejectingApptId,
+      ownerName: appt?.ownerName || '—',
+      petName:   appt?.petName   || '—',
+      rejectReason: reason
+    });
     closeRejectModal();
   } catch(err) {
     errEl.textContent = 'Failed to reject: ' + err.message;
@@ -562,6 +581,15 @@ async function confirmAssign() {
   try {
     await db.collection('appointments').doc(assigningApptId).update({
       status: 'accepted',
+      assignedDoctorId:   selectedDoctorId,
+      assignedDoctorName: selectedDoctorName
+    });
+    const appt = allAppts.find(a => a.id === assigningApptId);
+    logAudit('APPOINTMENT_ACCEPTED', {
+      _portal: 'admin',
+      appointmentId: assigningApptId,
+      ownerName: appt?.ownerName || '—',
+      petName:   appt?.petName   || '—',
       assignedDoctorId:   selectedDoctorId,
       assignedDoctorName: selectedDoctorName
     });
