@@ -197,6 +197,8 @@ function renderTable(users) {
     const isMe = u.id === currentUid;
     const rolePill = u.role === 'superadmin'
       ? `<span class="role-pill superadmin">👑 Super Admin</span>`
+      : u.role === 'doctor'
+      ? `<span class="role-pill doctor">🩺 Doctor</span>`
       : `<span class="role-pill admin">🔧 Admin</span>`;
 
     return `

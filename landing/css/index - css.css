@@ -25,9 +25,16 @@ body { background: var(--cream); font-family: 'Outfit', sans-serif; color: var(-
 }
 .brand { display: flex; align-items: center; gap: 14px; margin-bottom: 56px; position: relative; z-index: 1; }
 .brand-icon {
-    width: 52px; height: 52px; background: var(--gold); border-radius: 16px;
-    display: grid; place-items: center; font-size: 26px;
-    box-shadow: 0 8px 24px rgba(212,168,67,0.4); flex-shrink: 0;
+    width: 56px; height: 56px; border-radius: 16px;
+    display: grid; place-items: center; flex-shrink: 0;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(212,168,67,0.3);
+    background: #fff;
+}
+.brand-icon img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    border-radius: 16px;
 }
 .brand-name { font-family: 'Playfair Display', serif; font-size: 26px; color: #fff; line-height: 1; }
 .brand-name small {
@@ -48,8 +55,8 @@ body { background: var(--cream); font-family: 'Outfit', sans-serif; color: var(-
     display: grid; place-items: center; font-size: 16px; flex-shrink: 0;
 }
 .feature-item span { font-size: 14px; color: rgba(255,255,255,0.7); }
-.admin-link-wrap { margin-top: 48px; position: relative; z-index: 1; }
-.admin-link-wrap a { font-size: 13px; color: rgba(255,255,255,0.35); text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: color 0.2s; }
+.admin-link-wrap { margin-top: 48px; position: relative; z-index: 1; display: flex; flex-direction: column; gap: 10px; }
+.admin-link-wrap a { font-size: 13px; color: rgba(255,255,255,0.35); text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: color 0.2s; width: fit-content; }
 .admin-link-wrap a:hover { color: rgba(255,255,255,0.7); }
 .right-panel { display: flex; flex-direction: column; justify-content: center; padding: 64px 56px; background: var(--cream); overflow-y: auto; }
 .form-header { margin-bottom: 36px; }
@@ -100,6 +107,8 @@ input[type="date"], input[type="time"] { color-scheme: light; cursor: pointer; }
     .hero-text h1 { font-size: 38px; }
     .features { display: none; }
     .right-panel { padding: 40px 32px; }
+    .brand-icon { width: 48px; height: 48px; border-radius: 13px; }
+    .brand-icon img { border-radius: 13px; }
 }
 @media (max-width: 560px) {
     .form-grid { grid-template-columns: 1fr; }
@@ -109,4 +118,6 @@ input[type="date"], input[type="time"] { color-scheme: light; cursor: pointer; }
     .left-panel { padding: 32px 24px; }
     .right-panel { padding: 32px 24px; }
     .hero-text h1 { font-size: 30px; }
+    .brand-icon { width: 42px; height: 42px; border-radius: 11px; }
+    .brand-icon img { border-radius: 11px; }
 }

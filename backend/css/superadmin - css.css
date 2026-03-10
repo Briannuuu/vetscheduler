@@ -24,11 +24,7 @@ nav {
   font-family: 'Playfair Display', serif; font-size: 22px; color: #fff;
   display: flex; align-items: center; gap: 10px;
 }
-.nav-logo span {
-  background: var(--gold); border-radius: 10px;
-  width: 38px; height: 38px; display: grid; place-items: center;
-  font-size: 18px; box-shadow: 0 4px 12px rgba(212,168,67,0.4);
-}
+.nav-logo img { width: 38px; height: 38px; border-radius: 10px; object-fit: cover; flex-shrink: 0; box-shadow: 0 4px 12px rgba(212,168,67,0.4); display: block; }
 .staff-badge {
   background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
   color: rgba(255,255,255,0.7); border-radius: 16px;
@@ -75,8 +71,9 @@ main { max-width: 1200px; margin: 0 auto; padding: 40px 28px 60px; }
 .panel-icon {
   width: 48px; height: 48px; background: var(--teal-light);
   border-radius: 14px; display: grid; place-items: center;
-  font-size: 22px; flex-shrink: 0;
+  font-size: 20px; flex-shrink: 0;
   border: 1px solid var(--border);
+  color: var(--teal);
 }
 .panel-header h2 { font-family: 'Playfair Display', serif; font-size: 20px; color: var(--ink); }
 .panel-header p  { font-size: 13px; color: var(--muted); margin-top: 2px; }
@@ -200,6 +197,7 @@ select {
   letter-spacing: 0.5px; white-space: nowrap;
 }
 .role-pill.admin      { background: var(--teal-light); color: var(--teal); }
+.role-pill.doctor     { background: #eef3ff; color: #3b5bdb; border: 1px solid #c5d0fa; }
 .role-pill.superadmin { background: rgba(212,168,67,0.15); color: #9a6f0a; border: 1px solid rgba(212,168,67,0.3); }
 
 .action-btns { display: flex; gap: 6px; }
@@ -237,9 +235,11 @@ select {
 }
 .login-box .logo { display: flex; align-items: center; gap: 12px; margin-bottom: 32px; }
 .login-box .logo-icon {
-  width: 48px; height: 48px; background: var(--gold); border-radius: 14px;
-  display: grid; place-items: center; font-size: 22px;
+  width: 48px; height: 48px; background: #fff; border-radius: 14px;
+  overflow: hidden; display: grid; place-items: center;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.15);
 }
+.login-box .logo-icon img { width: 100%; height: 100%; object-fit: cover; border-radius: 14px; }
 .login-box .logo h2 { font-family: 'Playfair Display', serif; font-size: 22px; color: #fff; }
 .login-box .logo p  { font-size: 11px; color: rgba(255,255,255,0.4); letter-spacing: 1px; text-transform: uppercase; }
 .login-box .tag {
@@ -326,7 +326,14 @@ select {
 }
 @media (max-width: 700px) {
   main { padding: 24px 16px 40px; }
-  nav  { padding: 0 16px; }
+  nav  { padding: 0 16px; height: auto; min-height: 60px; flex-wrap: wrap; gap: 8px; padding-top: 10px; padding-bottom: 10px; }
+  .nav-left { gap: 10px; }
+  .nav-logo { font-size: 18px; }
+  .nav-logo img { width: 32px !important; height: 32px !important; border-radius: 8px !important; }
+  .nav-right { gap: 8px; }
+  .logged-in-email { display: none; }
+  .btn-admin-link { padding: 6px 10px; font-size: 12px; }
+  .btn-logout { padding: 6px 12px; font-size: 12px; }
   .login-box { padding: 36px 28px; }
   .search-wrap input { width: 100%; }
   .users-header { flex-direction: column; }

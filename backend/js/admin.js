@@ -9,11 +9,17 @@ document.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); })
 
 auth.onAuthStateChanged(async user => {
 if (!user) return showLoginOverlay();
-// Check admin role
 try {
     const doc = await db.collection('users').doc(user.uid).get();
-    if (!doc.exists || doc.data().role !== 'admin') {
-    await auth.signOut(); return showLoginOverlay();
+    if (!doc.exists) { await auth.signOut(); return showLoginOverlay(); }
+    const role = doc.data().role;
+    // Doctor role → redirect to their own dashboard
+    if (role === 'doctor') {
+      window.location.href = 'doctor.html';
+      return;
+    }
+    if (role !== 'admin' && role !== 'superadmin') {
+      await auth.signOut(); return showLoginOverlay();
     }
 } catch(e) {
     // If no users collection yet, allow first admin in (remove this in production)
@@ -42,6 +48,11 @@ try {
 }
 
 function doLogout() { auth.signOut(); }
+
+async function goToSuperAdmin() {
+  await auth.signOut();
+  window.location.href = 'superadmin.html';
+}
 
 // ── DATA ──
 function startListening() {
@@ -98,10 +109,11 @@ el.innerHTML = pageAppts.map((a, i) => {
     const created = a.createdAt?.toDate ? a.createdAt.toDate().toLocaleString('en-PH') : '';
 
     const actionBtns = a.status === 'pending'
-    ? `<button class="btn-accept" onclick="updateStatus('${a.id}', 'accepted')">✅ Accept</button>
+    ? `<button class="btn-accept" onclick="openAssignModal('${a.id}', \`${(a.ownerName||'').replace(/`/g,"'")}\`, \`${(a.petName||'').replace(/`/g,"'")}\`)">✅ Accept</button>
         <button class="btn-reject" onclick="updateStatus('${a.id}', 'rejected')">✕ Reject</button>
         <button class="btn-delete" onclick="deleteAppt('${a.id}')">🗑 Delete</button>`
     : `<div class="status-done ${a.status}">${a.status === 'accepted' ? '✅ Accepted' : '❌ Rejected'}</div>
+        ${a.assignedDoctorName ? `<div class="assigned-doctor">🩺 ${a.assignedDoctorName}</div>` : ''}
         <button class="btn-delete" onclick="deleteAppt('${a.id}')">🗑 Delete</button>`;
 
     return `
@@ -315,3 +327,77 @@ function closeModal() {
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') closeModal();
 });
+// ── ASSIGN DOCTOR MODAL ──
+let assigningApptId = null;
+
+async function openAssignModal(apptId, ownerName, petName) {
+  assigningApptId = apptId;
+  document.getElementById('assignApptLabel').textContent = `${ownerName} — ${petName}`;
+  document.getElementById('assignDoctorList').innerHTML =
+    `<div class="assign-loading"><div class="spinner" style="width:28px;height:28px;margin:20px auto;"></div></div>`;
+  document.getElementById('assignModalOverlay').classList.add('show');
+
+  // Load doctors from Firestore
+  try {
+    const snap = await db.collection('users').where('role', '==', 'doctor').get();
+    const doctors = snap.docs
+      .map(d => ({ id: d.id, ...d.data() }))
+      .sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+    if (!doctors.length) {
+      document.getElementById('assignDoctorList').innerHTML =
+        `<div class="assign-empty">No doctors found. Add doctors via Super Admin.</div>`;
+      return;
+    }
+    document.getElementById('assignDoctorList').innerHTML = doctors.map(d => `
+      <div class="doctor-option" onclick="selectDoctor('${d.id}', '${(d.name||'').replace(/'/g,"\\'")}', this)">
+        <div class="doctor-avatar">${(d.name || 'D')[0].toUpperCase()}</div>
+        <div>
+          <div class="doctor-opt-name">${d.name || '—'}</div>
+          <div class="doctor-opt-email">${d.email || '—'}</div>
+        </div>
+        <div class="doctor-check">✓</div>
+      </div>
+    `).join('');
+  } catch(err) {
+    document.getElementById('assignDoctorList').innerHTML =
+      `<div class="assign-empty" style="color:var(--red)">${err.message}</div>`;
+  }
+}
+
+let selectedDoctorId = null;
+let selectedDoctorName = null;
+
+function selectDoctor(uid, name, el) {
+  selectedDoctorId   = uid;
+  selectedDoctorName = name;
+  document.querySelectorAll('.doctor-option').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('assignConfirmBtn').disabled = false;
+}
+
+function closeAssignModal() {
+  document.getElementById('assignModalOverlay').classList.remove('show');
+  assigningApptId    = null;
+  selectedDoctorId   = null;
+  selectedDoctorName = null;
+  document.getElementById('assignConfirmBtn').disabled = true;
+}
+
+async function confirmAssign() {
+  if (!assigningApptId || !selectedDoctorId) return;
+  const btn = document.getElementById('assignConfirmBtn');
+  btn.disabled = true;
+  btn.textContent = 'Saving…';
+  try {
+    await db.collection('appointments').doc(assigningApptId).update({
+      status: 'accepted',
+      assignedDoctorId:   selectedDoctorId,
+      assignedDoctorName: selectedDoctorName
+    });
+    closeAssignModal();
+  } catch(err) {
+    alert('Failed to assign: ' + err.message);
+    btn.disabled = false;
+    btn.textContent = 'Confirm & Accept';
+  }
+}

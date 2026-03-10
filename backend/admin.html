@@ -6,7 +6,7 @@
   <title>Admin Dashboard – PawCare</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="css/admin - css.css">
-  <link rel="icon" type="image/x-icon" href="landing/img/logo.jpg">
+  <link rel="icon" type="image/x-icon" href="img/logo.jpg">
 </head>
 <body>
 
@@ -14,7 +14,7 @@
 <div class="login-overlay" id="loginOverlay">
   <div class="login-box">
     <div class="logo">
-      <div class="logo-icon">🐾</div>
+      <div class="logo-icon"><img src="img/logo.jpg" alt="VetCare Logo"/></div>
       <div><h2>VetCare</h2><p>Veterinary Clinic</p></div>
     </div>
     <div class="tag">🔒 Staff Portal</div>
@@ -32,11 +32,11 @@
 <!-- MAIN APP -->
 <nav>
   <div class="nav-left">
-    <div class="nav-logo"><span>🐾</span> VetCare Admin</div>
+    <div class="nav-logo"><img src="img/logo.jpg" alt="VetCare Logo"/>VetCare </div>
     <span class="staff-badge">Staff</span>
   </div>
   <div class="nav-right">
-    <a href="superadmin.html" style="font-size:13px;color:rgba(255,255,255,0.45);text-decoration:none;padding:7px 14px;border:1px solid rgba(255,255,255,0.12);border-radius:8px;transition:all 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.45)'">👑 Super Admin</a>
+    <button onclick="goToSuperAdmin()" style="font-size:13px;color:rgba(255,255,255,0.45);background:transparent;text-decoration:none;padding:7px 14px;border:1px solid rgba(255,255,255,0.12);border-radius:8px;transition:all 0.2s;cursor:pointer;font-family:'Outfit',sans-serif;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.45)'">👑 Super Admin</button>
     <button class="btn-logout" onclick="doLogout()">Sign Out</button>
   </div>
 </nav>
@@ -94,6 +94,27 @@
     </div>
   </div>
 </main>
+
+<!-- ASSIGN DOCTOR MODAL -->
+<div class="modal-overlay-assign" id="assignModalOverlay" onclick="closeAssignModal()">
+  <div class="modal-box-assign" onclick="event.stopPropagation()">
+    <div class="modal-header-assign">
+      <div>
+        <h3>Assign a Doctor</h3>
+        <p id="assignApptLabel" style="font-size:13px;color:var(--muted);margin-top:2px;"></p>
+      </div>
+      <button class="cal-modal-close" onclick="closeAssignModal()">✕</button>
+    </div>
+    <div class="modal-body-assign">
+      <p style="font-size:12px;font-weight:600;color:var(--teal-dark);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">Select Doctor</p>
+      <div id="assignDoctorList"></div>
+    </div>
+    <div class="modal-footer-assign">
+      <button class="btn-cancel-assign" onclick="closeAssignModal()">Cancel</button>
+      <button class="btn-confirm-assign" id="assignConfirmBtn" onclick="confirmAssign()" disabled>Confirm & Accept</button>
+    </div>
+  </div>
+</div>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>

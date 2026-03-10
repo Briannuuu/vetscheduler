@@ -5,8 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Super Admin – VetCare</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
   <link rel="stylesheet" href="css/superadmin - css.css">
-  <link rel="icon" type="image/x-icon" href="landing/img/logo.jpg">
+  <link rel="icon" type="image/x-icon" href="img/logo.jpg">
 </head>
 <body>
 
@@ -14,10 +15,10 @@
 <div class="login-overlay" id="loginOverlay">
   <div class="login-box">
     <div class="logo">
-      <div class="logo-icon">👑</div>
+      <div class="logo-icon"><img src="img/logo.jpg" alt="VetCare Logo"/></div>
       <div><h2>VetCare</h2><p>Veterinary Clinic</p></div>
     </div>
-    <div class="tag">👑 Super Admin Portal</div>
+    <div class="tag">🔒 Super Admin Portal</div>
     <h3>Super Admin Login</h3>
     <p class="sub">Only authorized superadmins may enter</p>
     <div class="login-err" id="loginErr"></div>
@@ -33,11 +34,11 @@
 <!-- MAIN APP -->
 <nav>
   <div class="nav-left">
-    <div class="nav-logo"><span>👑</span> VetCare Super Admin</div>
+    <div class="nav-logo"><img src="img/logo.jpg" alt="VetCare Logo"/>VetCare </div>
     <span class="staff-badge superadmin-badge">Super Admin</span>
   </div>
   <div class="nav-right">
-    <a href="admin.html" class="btn-admin-link">← Admin Dashboard</a>
+    <!-- <a href="admin.html" class="btn-admin-link">← Admin Dashboard</a> -->
     <span class="logged-in-email" id="loggedEmail"></span>
     <button class="btn-logout" onclick="doLogout()">Sign Out</button>
   </div>
@@ -49,7 +50,7 @@
     <!-- LEFT: CREATE USER FORM -->
     <div class="form-panel">
       <div class="panel-header">
-        <div class="panel-icon">➕</div>
+        <div class="panel-icon"><i class="fa-solid fa-user-plus"></i></div>
         <div>
           <h2>Create Admin User</h2>
           <p>Add a new staff account to Firebase Authentication</p>
@@ -79,6 +80,7 @@
         <select id="newRole">
           <option value="">Select role…</option>
           <option value="admin">Admin (Staff)</option>
+          <option value="doctor">Doctor</option>
           <option value="superadmin">Super Admin</option>
         </select>
       </div>
@@ -135,6 +137,7 @@
       <label style="font-size:12px;font-weight:600;color:#085457;text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:8px;">New Role</label>
       <select id="editRoleSelect" style="width:100%;padding:12px 14px;border:1.5px solid #d4e8e8;border-radius:10px;font-family:'Outfit',sans-serif;font-size:14px;outline:none;">
         <option value="admin">Admin (Staff)</option>
+        <option value="doctor">Doctor</option>
         <option value="superadmin">Super Admin</option>
       </select>
     </div>

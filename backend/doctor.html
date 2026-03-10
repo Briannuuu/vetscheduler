@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Doctor Dashboard – VetCare</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="css/doctor - css.css">
+  <link rel="icon" type="image/x-icon" href="img/logo.jpg">
+</head>
+<body>
+
+<!-- LOGIN OVERLAY -->
+<div class="login-overlay" id="loginOverlay">
+  <div class="login-box">
+    <div class="logo">
+      <div class="logo-icon"><img src="img/logo.jpg" alt="VetCare Logo"/></div>
+      <div><h2>VetCare</h2><p>Veterinary Clinic</p></div>
+    </div>
+    <div class="tag">🩺 Doctor Portal</div>
+    <h3>Doctor Login</h3>
+    <p class="sub">Sign in to view your schedule</p>
+    <div class="login-err" id="loginErr"></div>
+    <label>Email</label>
+    <input type="email" id="loginEmail" placeholder="doctor@vetcare.com"/>
+    <label>Password</label>
+    <input type="password" id="loginPass" placeholder="••••••••"/>
+    <button class="login-btn" onclick="doLogin()">Sign In →</button>
+    <div class="back-link"><a href="../index.html">← Back to Landing Page</a></div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<nav>
+  <div class="nav-left">
+    <div class="nav-logo"><img src="img/logo.jpg" alt="VetCare Logo"/>VetCare</div>
+    <span class="staff-badge doctor-badge">🩺 Doctor</span>
+  </div>
+  <div class="nav-right">
+    <span class="logged-in-name" id="loggedName"></span>
+    <span class="logged-in-email" id="loggedEmail"></span>
+    <button class="btn-logout" onclick="doLogout()">Sign Out</button>
+  </div>
+</nav>
+
+<main>
+  <!-- STATS ROW -->
+  <div class="stats-grid">
+    <div class="stat-card today-card">
+      <div class="stat-icon">📅</div>
+      <div>
+        <div class="stat-label">Today's Appointments</div>
+        <div class="stat-value" id="statToday">—</div>
+      </div>
+    </div>
+    <div class="stat-card week-card">
+      <div class="stat-icon">📆</div>
+      <div>
+        <div class="stat-label">This Week</div>
+        <div class="stat-value" id="statWeek">—</div>
+      </div>
+    </div>
+    <div class="stat-card month-card">
+      <div class="stat-icon">🗓</div>
+      <div>
+        <div class="stat-label">This Month</div>
+        <div class="stat-value" id="statMonth">—</div>
+      </div>
+    </div>
+    <div class="stat-card total-card">
+      <div class="stat-icon">🐾</div>
+      <div>
+        <div class="stat-label">Total Assigned</div>
+        <div class="stat-value" id="statTotal">—</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- UPCOMING APPOINTMENTS LIST -->
+  <div class="section-header">
+    <h2>My Appointments</h2>
+    <div class="tabs">
+      <button class="tab active" onclick="filterTab('upcoming', this)">Upcoming</button>
+      <button class="tab"        onclick="filterTab('today', this)">Today</button>
+      <button class="tab"        onclick="filterTab('all', this)">All</button>
+    </div>
+  </div>
+
+  <div class="cards-list" id="cardsList">
+    <div class="spinner"></div>
+  </div>
+
+  <!-- CALENDAR VIEW -->
+  <div class="calendar-section">
+    <div class="calendar-header">
+      <h2>My Schedule</h2>
+      <div class="cal-nav">
+        <button class="cal-nav-btn" onclick="changeMonth(-1)">&#8249;</button>
+        <span class="cal-month-label" id="calMonthLabel"></span>
+        <button class="cal-nav-btn" onclick="changeMonth(1)">&#8250;</button>
+      </div>
+    </div>
+    <div class="calendar-grid-wrap">
+      <div class="cal-day-headers">
+        <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+      </div>
+      <div class="cal-grid" id="calGrid"></div>
+    </div>
+  </div>
+
+  <!-- DAY DETAIL MODAL -->
+  <div class="cal-modal-overlay" id="calModalOverlay" onclick="closeModal()">
+    <div class="cal-modal" onclick="event.stopPropagation()">
+      <div class="cal-modal-header">
+        <h3 id="calModalTitle"></h3>
+        <button class="cal-modal-close" onclick="closeModal()">✕</button>
+      </div>
+      <div class="cal-modal-body" id="calModalBody"></div>
+    </div>
+  </div>
+</main>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="../shared/firebase-config.js"></script>
+<script src="js/doctor.js"></script>
+</body>
+</html>
