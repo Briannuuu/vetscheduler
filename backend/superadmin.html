@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Super Admin – VetCare</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="css/superadmin - css.css">
+  <link rel="icon" type="image/x-icon" href="landing/img/logo.jpg">
+</head>
+<body>
+
+<!-- LOGIN OVERLAY -->
+<div class="login-overlay" id="loginOverlay">
+  <div class="login-box">
+    <div class="logo">
+      <div class="logo-icon">👑</div>
+      <div><h2>VetCare</h2><p>Veterinary Clinic</p></div>
+    </div>
+    <div class="tag">👑 Super Admin Portal</div>
+    <h3>Super Admin Login</h3>
+    <p class="sub">Only authorized superadmins may enter</p>
+    <div class="login-err" id="loginErr"></div>
+    <label>Email</label>
+    <input type="email" id="loginEmail" placeholder="superadmin@vetcare.com"/>
+    <label>Password</label>
+    <input type="password" id="loginPass" placeholder="••••••••"/>
+    <button class="login-btn" onclick="doLogin()">Sign In →</button>
+    <div class="back-link"><a href="admin.html">← Back to Admin</a></div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<nav>
+  <div class="nav-left">
+    <div class="nav-logo"><span>👑</span> VetCare Super Admin</div>
+    <span class="staff-badge superadmin-badge">Super Admin</span>
+  </div>
+  <div class="nav-right">
+    <a href="admin.html" class="btn-admin-link">← Admin Dashboard</a>
+    <span class="logged-in-email" id="loggedEmail"></span>
+    <button class="btn-logout" onclick="doLogout()">Sign Out</button>
+  </div>
+</nav>
+
+<main>
+  <div class="page-grid">
+
+    <!-- LEFT: CREATE USER FORM -->
+    <div class="form-panel">
+      <div class="panel-header">
+        <div class="panel-icon">➕</div>
+        <div>
+          <h2>Create Admin User</h2>
+          <p>Add a new staff account to Firebase Authentication</p>
+        </div>
+      </div>
+
+      <div class="toast" id="toast"></div>
+
+      <div class="form-group">
+        <label>Full Name <span class="req">*</span></label>
+        <input type="text" id="newName" placeholder="e.g. Dr. Maria Santos"/>
+      </div>
+      <div class="form-group">
+        <label>Email Address <span class="req">*</span></label>
+        <input type="email" id="newEmail" placeholder="staff@vetcare.com"/>
+      </div>
+      <div class="form-group">
+        <label>Password <span class="req">*</span></label>
+        <div class="pw-wrap">
+          <input type="password" id="newPassword" placeholder="Min. 6 characters"/>
+          <button class="pw-toggle" onclick="togglePw()" id="pwToggleBtn" title="Show/hide password">👁</button>
+        </div>
+        <div class="pw-strength" id="pwStrength"></div>
+      </div>
+      <div class="form-group">
+        <label>Role <span class="req">*</span></label>
+        <select id="newRole">
+          <option value="">Select role…</option>
+          <option value="admin">Admin (Staff)</option>
+          <option value="superadmin">Super Admin</option>
+        </select>
+      </div>
+
+      <button class="btn-create" id="createBtn" onclick="createUser()">
+        <span id="createBtnText">Create Account →</span>
+      </button>
+    </div>
+
+    <!-- RIGHT: USERS TABLE -->
+    <div class="users-panel">
+      <div class="users-header">
+        <div>
+          <h2>Admin Users</h2>
+          <p id="userCountText">Loading users…</p>
+        </div>
+        <div class="search-wrap">
+          <input type="text" id="searchInput" placeholder="🔍 Search by name or email…" oninput="filterUsers()"/>
+        </div>
+      </div>
+
+      <div class="users-table-wrap">
+        <table class="users-table" id="usersTable">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Created</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="usersTableBody">
+            <tr><td colspan="5" class="table-loading">
+              <div class="spinner"></div>
+            </td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- EDIT ROLE MODAL -->
+<div class="modal-overlay" id="editModalOverlay" onclick="closeEditModal()">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Edit User Role</h3>
+      <button class="modal-close" onclick="closeEditModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <p id="editUserInfo" style="font-size:14px;color:#6b8080;margin-bottom:20px;"></p>
+      <label style="font-size:12px;font-weight:600;color:#085457;text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:8px;">New Role</label>
+      <select id="editRoleSelect" style="width:100%;padding:12px 14px;border:1.5px solid #d4e8e8;border-radius:10px;font-family:'Outfit',sans-serif;font-size:14px;outline:none;">
+        <option value="admin">Admin (Staff)</option>
+        <option value="superadmin">Super Admin</option>
+      </select>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel-modal" onclick="closeEditModal()">Cancel</button>
+      <button class="btn-save-modal" onclick="saveRoleEdit()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="../shared/firebase-config.js"></script>
+<script src="js/superadmin.js"></script>
+</body>
+</html>
