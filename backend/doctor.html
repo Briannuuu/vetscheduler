@@ -90,6 +90,65 @@
     <div class="spinner"></div>
   </div>
 
+  <!-- ── AVAILABILITY SCHEDULER ── -->
+  <div class="avail-section">
+    <div class="avail-header">
+      <div class="avail-title-group">
+        <h2>My Availability</h2>
+        <p class="avail-subtitle">Set your preferred dates &amp; time slots for each month</p>
+      </div>
+      <div class="avail-header-right">
+        <div class="avail-summary-badge" id="availSummary">Loading…</div>
+        <button class="avail-save-btn" id="availSaveBtn" onclick="saveAvailability()">Save Availability</button>
+      </div>
+    </div>
+
+    <!-- Month navigator -->
+    <div class="avail-cal-nav">
+      <button class="cal-nav-btn" onclick="changeAvailMonth(-1)">&#8249;</button>
+      <span class="cal-month-label" id="availMonthLabel"></span>
+      <button class="cal-nav-btn" onclick="changeAvailMonth(1)">&#8250;</button>
+    </div>
+
+    <!-- Legend -->
+    <div class="avail-legend">
+      <span class="legend-item"><span class="legend-dot legend-dot-set"></span>Availability set</span>
+      <span class="legend-item"><span class="legend-dot legend-dot-today"></span>Today</span>
+      <span class="legend-item"><span class="legend-dot legend-dot-past"></span>Past</span>
+    </div>
+
+    <!-- Availability calendar grid -->
+    <div class="avail-grid-wrap">
+      <div class="avail-day-headers">
+        <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+      </div>
+      <div class="avail-grid" id="availGrid"></div>
+    </div>
+  </div>
+
+  <!-- AVAILABILITY DAY MODAL -->
+  <div class="avail-modal-overlay" id="availModalOverlay" onclick="closeAvailModal()">
+    <div class="avail-modal" onclick="event.stopPropagation()">
+      <div class="avail-modal-header">
+        <div>
+          <h3 id="availModalTitle"></h3>
+          <p class="avail-modal-sub">Click time slots to toggle availability</p>
+        </div>
+        <button class="cal-modal-close" onclick="closeAvailModal()">✕</button>
+      </div>
+      <div class="avail-modal-actions">
+        <button class="avail-action-btn avail-select-all" onclick="selectAllSlots()">Select All</button>
+        <button class="avail-action-btn avail-clear-all"  onclick="clearDaySlots()">Clear All</button>
+      </div>
+      <div class="avail-modal-body">
+        <div class="time-slots-grid" id="timeSlotsGrid"></div>
+      </div>
+      <div class="avail-modal-footer">
+        <button class="avail-done-btn" onclick="closeAvailModal()">Done &amp; Save →</button>
+      </div>
+    </div>
+  </div>
+
   <!-- CALENDAR VIEW -->
   <div class="calendar-section">
     <div class="calendar-header">

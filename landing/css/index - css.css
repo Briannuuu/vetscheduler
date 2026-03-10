@@ -121,3 +121,11 @@ input[type="date"], input[type="time"] { color-scheme: light; cursor: pointer; }
     .brand-icon { width: 42px; height: 42px; border-radius: 11px; }
     .brand-icon img { border-radius: 11px; }
 }
+/* Optional field label tag */
+label .opt {
+  font-size: 10px; font-weight: 500; letter-spacing: 0.5px;
+  text-transform: uppercase; color: var(--muted);
+  background: var(--teal-light); border: 1px solid var(--border);
+  border-radius: 6px; padding: 2px 7px; margin-left: 6px;
+  vertical-align: middle;
+}

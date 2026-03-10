@@ -174,6 +174,11 @@ main { max-width: 1200px; margin: 0 auto; padding: 40px 28px 60px; }
     .btn-logout { padding: 6px 12px; font-size: 12px; }
     main { padding: 24px 16px 40px; }
 }
+
+.back-link { text-align: center; margin-top: 20px; }
+.back-link a { font-size: 13px; color: rgba(255,255,255,0.3); text-decoration: none; transition: color 0.2s; }
+.back-link a:hover { color: rgba(255,255,255,0.7); }
+
 /* ── CALENDAR SECTION ── */
 .calendar-section {
   margin-top: 52px;
@@ -569,4 +574,59 @@ main { max-width: 1200px; margin: 0 auto; padding: 40px 28px 60px; }
   color: #3b5bdb; background: #eef3ff;
   border: 1px solid #c5d0fa; border-radius: 8px;
   padding: 5px 10px; text-align: center;
+}
+/* ── Availability filter in assign modal ── */
+.avail-filter-note {
+  font-size: 12px; color: var(--muted);
+  background: var(--teal-light); border: 1px solid var(--border);
+  border-radius: 8px; padding: 8px 12px; margin-bottom: 14px;
+}
+.avail-filter-note strong { color: var(--teal-dark); }
+
+/* Available / Unavailable badges */
+.avail-badge {
+  font-size: 11px; font-weight: 700; padding: 3px 9px;
+  border-radius: 20px; white-space: nowrap;
+}
+.avail-badge-yes {
+  background: #d1fae5; color: #065f46;
+  border: 1px solid #6ee7b7;
+}
+.avail-badge-no {
+  background: #fee2e2; color: #991b1b;
+  border: 1px solid #fca5a5;
+}
+
+/* Unavailable doctor row — greyed out, not clickable */
+.doctor-unavailable {
+  opacity: 0.5; cursor: not-allowed !important;
+  pointer-events: none;
+}
+.doctor-unavailable:hover {
+  border-color: var(--border) !important;
+  background: transparent !important;
+}
+
+/* Time slots preview under doctor email */
+.doctor-opt-slots {
+  font-size: 11px; color: var(--teal-dark);
+  margin-top: 4px; font-weight: 500;
+}
+.doctor-opt-details { flex: 1; }
+/* ── Reject confirm button ── */
+.btn-reject-confirm {
+  padding: 10px 22px; background: #e74c3c; color: #fff; border: none;
+  border-radius: 10px; font-family: 'Outfit', sans-serif;
+  font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.2s;
+  box-shadow: 0 3px 12px rgba(231,76,60,0.25);
+}
+.btn-reject-confirm:hover:not(:disabled) { background: #c0392b; }
+.btn-reject-confirm:disabled { background: #f1948a; box-shadow: none; cursor: not-allowed; }
+
+/* Reject reason tag shown on rejected cards */
+.reject-reason-tag {
+  font-size: 12px; font-weight: 500;
+  color: #922b21; background: #fdf2f2;
+  border: 1px solid #f5c6c6; border-radius: 8px;
+  padding: 5px 10px; text-align: center; margin-top: 2px;
 }

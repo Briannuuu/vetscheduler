@@ -110,10 +110,11 @@ el.innerHTML = pageAppts.map((a, i) => {
 
     const actionBtns = a.status === 'pending'
     ? `<button class="btn-accept" onclick="openAssignModal('${a.id}', \`${(a.ownerName||'').replace(/`/g,"'")}\`, \`${(a.petName||'').replace(/`/g,"'")}\`)">✅ Accept</button>
-        <button class="btn-reject" onclick="updateStatus('${a.id}', 'rejected')">✕ Reject</button>
+        <button class="btn-reject" onclick="openRejectModal('${a.id}', \`${(a.ownerName||'').replace(/`/g,"'")}\`, \`${(a.petName||'').replace(/`/g,"'")}\`)">✕ Reject</button>
         <button class="btn-delete" onclick="deleteAppt('${a.id}')">🗑 Delete</button>`
     : `<div class="status-done ${a.status}">${a.status === 'accepted' ? '✅ Accepted' : '❌ Rejected'}</div>
         ${a.assignedDoctorName ? `<div class="assigned-doctor">🩺 ${a.assignedDoctorName}</div>` : ''}
+        ${a.rejectReason ? `<div class="reject-reason-tag">💬 ${a.rejectReason}</div>` : ''}
         <button class="btn-delete" onclick="deleteAppt('${a.id}')">🗑 Delete</button>`;
 
     return `
@@ -129,6 +130,7 @@ el.innerHTML = pageAppts.map((a, i) => {
             <span>🕐 <strong>${a.time || '—'}</strong></span>
             <span>📞 <strong>${a.contactNo || '—'}</strong></span>
             <span>✉️ <strong>${a.email || '—'}</strong></span>
+            ${a.preferredDoctor ? `<span style="grid-column:1/-1">🩺 Preferred Doctor: <strong>${a.preferredDoctor}</strong></span>` : ''}
             ${a.address ? `<span style="grid-column:1/-1">📍 <strong>${a.address}</strong></span>` : ''}
         </div>
         ${a.notes ? `<div class="card-notes">📝 ${a.notes}</div>` : ''}
@@ -325,39 +327,141 @@ function closeModal() {
 }
 
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') closeModal();
+  if (e.key === 'Escape') { closeModal(); closeRejectModal(); }
 });
+
+// ── TIME FORMAT HELPER ──
+// Converts any time string to 24h "HH:MM" to match stored availability slots.
+// Handles: "10:51 AM", "10:51AM", "22:30", "9:00 pm", etc.
+function normalizeTo24h(timeStr) {
+  if (!timeStr) return null;
+  // Already 24h format: "HH:MM" with no am/pm
+  const plain = timeStr.match(/^(\d{1,2}):(\d{2})$/);
+  if (plain) return `${plain[1].padStart(2,'0')}:${plain[2]}`;
+  // 12h format with AM/PM
+  const ampm = timeStr.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+  if (ampm) {
+    let h = parseInt(ampm[1], 10);
+    const m = ampm[2];
+    const period = ampm[3].toUpperCase();
+    if (period === 'AM' && h === 12) h = 0;
+    if (period === 'PM' && h !== 12) h += 12;
+    return `${String(h).padStart(2,'0')}:${m}`;
+  }
+  return null; // unrecognised format — fall back to "any slot" check
+}
+
+// Given a 24h "HH:MM" time and an array of slot strings (also 24h "HH:MM"),
+// returns true if any slot falls within ±30 minutes of the appointment time.
+function doctorAvailableForTime(apptTime24, slots) {
+  if (!apptTime24 || !slots || slots.length === 0) return slots && slots.length > 0;
+  const [ah, am] = apptTime24.split(':').map(Number);
+  const apptMins = ah * 60 + am;
+  return slots.some(slot => {
+    const [sh, sm] = slot.split(':').map(Number);
+    const slotMins = sh * 60 + sm;
+    return Math.abs(apptMins - slotMins) <= 30;
+  });
+}
+
 // ── ASSIGN DOCTOR MODAL ──
-let assigningApptId = null;
+let assigningApptId   = null;
+let assigningApptDate = null;
+let assigningApptTime = null;
 
 async function openAssignModal(apptId, ownerName, petName) {
   assigningApptId = apptId;
+
+  // Grab the appointment's date & time for availability checking
+  const appt = allAppts.find(a => a.id === apptId);
+  if (appt) {
+    const d = appt.date?.toDate ? appt.date.toDate() : new Date(appt.date);
+    assigningApptDate = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    assigningApptTime = normalizeTo24h((appt.time || '').trim());
+  } else {
+    assigningApptDate = null;
+    assigningApptTime = null;
+  }
+
   document.getElementById('assignApptLabel').textContent = `${ownerName} — ${petName}`;
   document.getElementById('assignDoctorList').innerHTML =
     `<div class="assign-loading"><div class="spinner" style="width:28px;height:28px;margin:20px auto;"></div></div>`;
   document.getElementById('assignModalOverlay').classList.add('show');
 
-  // Load doctors from Firestore
   try {
     const snap = await db.collection('users').where('role', '==', 'doctor').get();
     const doctors = snap.docs
       .map(d => ({ id: d.id, ...d.data() }))
       .sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+
     if (!doctors.length) {
       document.getElementById('assignDoctorList').innerHTML =
         `<div class="assign-empty">No doctors found. Add doctors via Super Admin.</div>`;
       return;
     }
-    document.getElementById('assignDoctorList').innerHTML = doctors.map(d => `
-      <div class="doctor-option" onclick="selectDoctor('${d.id}', '${(d.name||'').replace(/'/g,"\\'")}', this)">
-        <div class="doctor-avatar">${(d.name || 'D')[0].toUpperCase()}</div>
-        <div>
-          <div class="doctor-opt-name">${d.name || '—'}</div>
-          <div class="doctor-opt-email">${d.email || '—'}</div>
-        </div>
-        <div class="doctor-check">✓</div>
-      </div>
-    `).join('');
+
+    // Fetch availability for each doctor on the appointment date
+    const availResults = await Promise.all(doctors.map(async doc => {
+      if (!assigningApptDate) return { available: false, slots: [] };
+      const monthKey = assigningApptDate.slice(0, 7); // "YYYY-MM"
+      try {
+        const availSnap = await db.collection('doctorAvailability')
+          .doc(doc.id)
+          .collection('months')
+          .doc(monthKey)
+          .get();
+        if (!availSnap.exists) return { available: false, slots: [] };
+        const slots = (availSnap.data().slots || {})[assigningApptDate] || [];
+        // If appointment has a specific time, check that exact slot; otherwise any slot counts
+        const available = assigningApptTime
+          ? doctorAvailableForTime(assigningApptTime, slots)
+          : slots.length > 0;
+        return { available, slots };
+      } catch(e) {
+        return { available: false, slots: [] };
+      }
+    }));
+
+    // Merge availability into doctor objects, then sort available first
+    const indexed = doctors.map((d, i) => ({ ...d, ...availResults[i] }));
+    indexed.sort((a, b) => {
+      if (a.available && !b.available) return -1;
+      if (!a.available && b.available) return 1;
+      return (a.name || '').localeCompare(b.name || '');
+    });
+
+    const hasDate = !!assigningApptDate;
+    document.getElementById('assignDoctorList').innerHTML =
+      (hasDate
+        ? `<div class="avail-filter-note">
+             🗓 Availability for <strong>${assigningApptDate}</strong>
+             ${assigningApptTime ? `at <strong>${assigningApptTime}</strong>` : ''}
+           </div>`
+        : '') +
+      indexed.map(d => {
+        const unavailable = hasDate && !d.available;
+        const badge = !hasDate ? '' : d.available
+          ? `<span class="avail-badge avail-badge-yes">✓ Available</span>`
+          : `<span class="avail-badge avail-badge-no">✗ Unavailable</span>`;
+        const slotsPreview = hasDate && d.slots && d.slots.length > 0
+          ? `<div class="doctor-opt-slots">🕐 ${d.slots.slice(0, 5).join(', ')}${d.slots.length > 5 ? ` +${d.slots.length - 5} more` : ''}</div>`
+          : '';
+        return `
+          <div class="doctor-option ${unavailable ? 'doctor-unavailable' : ''}"
+               onclick="${unavailable ? 'void(0)' : `selectDoctor('${d.id}', '${(d.name||'').replace(/'/g,"\\'")}', this)`}"
+               title="${unavailable ? 'This doctor has not set availability for this date/time' : ''}">
+            <div class="doctor-avatar">${(d.name || 'D')[0].toUpperCase()}</div>
+            <div class="doctor-opt-details">
+              <div class="doctor-opt-name">${d.name || '—'}</div>
+              <div class="doctor-opt-email">${d.email || '—'}</div>
+              ${slotsPreview}
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
+              ${badge}
+              <div class="doctor-check">✓</div>
+            </div>
+          </div>`;
+      }).join('');
   } catch(err) {
     document.getElementById('assignDoctorList').innerHTML =
       `<div class="assign-empty" style="color:var(--red)">${err.message}</div>`;
@@ -378,9 +482,55 @@ function selectDoctor(uid, name, el) {
 function closeAssignModal() {
   document.getElementById('assignModalOverlay').classList.remove('show');
   assigningApptId    = null;
+  assigningApptDate  = null;
+  assigningApptTime  = null;
   selectedDoctorId   = null;
   selectedDoctorName = null;
   document.getElementById('assignConfirmBtn').disabled = true;
+}
+
+
+// ── REJECT REASON MODAL ──
+let rejectingApptId = null;
+
+function openRejectModal(apptId, ownerName, petName) {
+  rejectingApptId = apptId;
+  document.getElementById('rejectApptLabel').textContent = `${ownerName} — ${petName}`;
+  document.getElementById('rejectReasonInput').value = '';
+  document.getElementById('rejectReasonErr').style.display = 'none';
+  document.getElementById('rejectModalOverlay').classList.add('show');
+  setTimeout(() => document.getElementById('rejectReasonInput').focus(), 100);
+}
+
+function closeRejectModal() {
+  document.getElementById('rejectModalOverlay').classList.remove('show');
+  rejectingApptId = null;
+}
+
+async function confirmReject() {
+  const reason = document.getElementById('rejectReasonInput').value.trim();
+  const errEl  = document.getElementById('rejectReasonErr');
+  if (!reason) {
+    errEl.textContent = 'Please enter a reason for rejection.';
+    errEl.style.display = 'block';
+    return;
+  }
+  errEl.style.display = 'none';
+  const btn = document.getElementById('rejectConfirmBtn');
+  btn.disabled = true;
+  btn.textContent = 'Rejecting…';
+  try {
+    await db.collection('appointments').doc(rejectingApptId).update({
+      status: 'rejected',
+      rejectReason: reason
+    });
+    closeRejectModal();
+  } catch(err) {
+    errEl.textContent = 'Failed to reject: ' + err.message;
+    errEl.style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = '❌ Confirm Rejection';
+  }
 }
 
 async function confirmAssign() {

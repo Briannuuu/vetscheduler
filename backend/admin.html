@@ -26,6 +26,7 @@
     <label>Password</label>
     <input type="password" id="loginPass" placeholder="••••••••"/>
     <button class="login-btn" onclick="doLogin()">Sign In →</button>
+    <div class="back-link"><a href="../index.html">← Back to Landing Page</a></div>
   </div>
 </div>
 
@@ -121,5 +122,29 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="../shared/firebase-config.js"></script>
 <script src="js/admin.js"></script>
+
+<!-- REJECT REASON MODAL -->
+<div class="modal-overlay-assign" id="rejectModalOverlay" onclick="closeRejectModal()">
+  <div class="modal-box-assign" onclick="event.stopPropagation()" style="max-width:460px;">
+    <div class="modal-header-assign">
+      <div>
+        <h3>Reject Appointment</h3>
+        <p id="rejectApptLabel" style="font-size:13px;color:var(--muted);margin-top:2px;"></p>
+      </div>
+      <button class="cal-modal-close" onclick="closeRejectModal()">✕</button>
+    </div>
+    <div class="modal-body-assign">
+      <label style="font-size:12px;font-weight:600;color:var(--teal-dark);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:10px;">Reason for Rejection <span style="color:#e74c3c">*</span></label>
+      <textarea id="rejectReasonInput" placeholder="e.g. No available slot on that date, Doctor unavailable, Please reschedule…"
+        style="width:100%;min-height:110px;padding:13px 16px;border:1.5px solid var(--border);border-radius:12px;font-family:'Outfit',sans-serif;font-size:14px;color:var(--ink);background:var(--warm-white);outline:none;resize:vertical;transition:border-color 0.2s;"></textarea>
+      <div id="rejectReasonErr" style="display:none;margin-top:8px;font-size:12px;color:#e74c3c;font-weight:500;"></div>
+    </div>
+    <div class="modal-footer-assign">
+      <button class="btn-cancel-assign" onclick="closeRejectModal()">Cancel</button>
+      <button class="btn-reject-confirm" id="rejectConfirmBtn" onclick="confirmReject()">❌ Confirm Rejection</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>

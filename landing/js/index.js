@@ -1,4 +1,27 @@
 document.getElementById('apptDate').min = new Date().toISOString().split('T')[0];
+// Snap time input to nearest 30-min slot on every change
+(function() {
+  const timeInput = document.getElementById('apptTime');
+  timeInput.addEventListener('change', function() {
+    if (!this.value) return;
+    const [h, m] = this.value.split(':').map(Number);
+    // Round to nearest 30: 0-14 → :00, 15-44 → :30, 45-59 → next hour :00
+    let snappedH = h, snappedM;
+    if (m < 15) {
+      snappedM = 0;
+    } else if (m < 45) {
+      snappedM = 30;
+    } else {
+      snappedM = 0;
+      snappedH = h + 1;
+    }
+    // Enforce clinic hours 07:00 – 18:00
+    if (snappedH < 7)  { snappedH = 7;  snappedM = 0; }
+    if (snappedH > 18 || (snappedH === 18 && snappedM > 0)) { snappedH = 18; snappedM = 0; }
+    this.value = `${String(snappedH).padStart(2,'0')}:${String(snappedM).padStart(2,'0')}`;
+  });
+})();
+
 
 function showError(msg) {
 const el = document.getElementById('errorBar');
@@ -27,6 +50,7 @@ const apptDate  = document.getElementById('apptDate').value;
 const apptTime  = document.getElementById('apptTime').value;
 const address   = document.getElementById('address').value.trim();
 const notes     = document.getElementById('notes').value.trim();
+const preferredDoctor = document.getElementById('preferredDoctor').value.trim();
 
 if (!ownerName) return showError('Please enter the owner name.');
 if (!contactNo) return showError('Please enter a contact number.');
@@ -47,6 +71,7 @@ try {
     dateStr: apptDate,
     time: formatTime(apptTime),
     notes,
+    preferredDoctor,
     status: 'pending',
     createdAt: firebase.firestore.FieldValue.serverTimestamp()
     });
@@ -58,6 +83,7 @@ try {
     <div class="row"><span>Date</span><span>${formatDate(apptDate)}</span></div>
     <div class="row"><span>Time</span><span>${formatTime(apptTime)}</span></div>
     <div class="row"><span>Contact</span><span>${contactNo}</span></div>
+    ${preferredDoctor ? `<div class="row"><span>Preferred Doctor</span><span>${preferredDoctor}</span></div>` : ''}
     <div class="row"><span>Status</span><span style="color:#0d7377;font-weight:700">⏳ Pending Review</span></div>
     `;
     document.getElementById('formView').style.display = 'none';
@@ -70,7 +96,7 @@ try {
 }
 
 function resetForm() {
-['ownerName','contactNo','email','address','petName','petBreed','apptDate','apptTime','notes'].forEach(id => document.getElementById(id).value = '');
+['ownerName','contactNo','email','address','petName','petBreed','apptDate','apptTime','notes','preferredDoctor'].forEach(id => document.getElementById(id).value = '');
 document.getElementById('submitBtn').disabled = false;
 document.getElementById('btnText').textContent = 'Request Appointment →';
 document.getElementById('formView').style.display = 'block';

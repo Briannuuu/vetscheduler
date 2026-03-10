@@ -69,11 +69,15 @@
         </div>
         <div class="form-group">
           <label>Preferred Time <span class="req">*</span></label>
-          <input type="time" id="apptTime"/>
+          <input type="time" id="apptTime" step="1800" min="07:00" max="18:00"/>
         </div>
         <div class="form-group full">
           <label>Reason for Visit / Notes</label>
           <textarea id="notes" placeholder="e.g. Annual checkup, vaccination, limping on left leg…"></textarea>
+        </div>
+        <div class="form-group full">
+          <label>Preferred Doctor <span class="opt">optional</span></label>
+          <input type="text" id="preferredDoctor" placeholder="e.g. Dr. Maria Santos (leave blank if no preference)"/>
         </div>
         <button class="btn-submit" id="submitBtn" onclick="submitRequest()">
           <span id="btnText">Request Appointment →</span>
